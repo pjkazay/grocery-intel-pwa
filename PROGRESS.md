@@ -1,121 +1,204 @@
-# Receipt Intelligence - Progress Tracker
+# Development Progress
+
+## Current Status: Phase 1.2 Complete ✅
+
+**Last Updated:** April 17, 2026
+
+---
 
 ## Phase 0: Environment Setup ✅ COMPLETE
 
-- [x] Install Git (v2.50.1)
-- [x] Install Node.js (v24.11.1)
-- [x] Install VS Code + extensions
-- [x] Create GitHub account
-- [x] Create GitHub repo (grocery-intel)
-- [x] Set up Neon database
-- [x] Get Anthropic API key
-- [x] Create local project folder
-- [x] Connect local to GitHub
-- [x] Push initial commit
+**Goal:** Set up development environment and tools
 
-**Completed:** [Date you finished Phase 0]
+- ✅ Install Node.js, Git, VS Code
+- ✅ Create GitHub repository: `grocery-intel-pwa`
+- ✅ Initialize npm project
+- ✅ Install dependencies (@anthropic-ai/sdk, typescript, tsx, dotenv)
+- ✅ Set up SSH authentication for GitHub
+- ✅ Create `.env` with Anthropic API key
+- ✅ Create `.gitignore`
 
 ---
 
-## Phase 1: Core Receipt Processing (IN PROGRESS)
+## Phase 1: Core Receipt Processing ✅ COMPLETE
 
-### Phase 1.1: Minimal Claude Integration
+### Phase 1.1: Claude API Connection ✅
+**Goal:** Verify we can call the Anthropic API
 
-**Goal:** Get Claude API working with a simple test
+- ✅ Created `src/test-api.ts`
+- ✅ Successfully called Claude API
+- ✅ Fixed dotenv configuration
+- ✅ Confirmed API key authentication working
 
-- [ ] Initialize npm project
-- [ ] Install dependencies (@anthropic-ai/sdk, typescript, tsx)
-- [ ] Create src/ folder structure
-- [ ] Create .env file with API key
-- [ ] Write test-receipt.ts
-- [ ] Run test and verify API connection works
-- [ ] Document any issues encountered
+### Phase 1.2: Receipt Image Processing ✅
+**Goal:** Extract data from receipt images
 
-**Status:** Starting...
+**Iteration 1 (v1.0):**
+- ✅ Created `src/process-receipt.ts`
+- ✅ Tested with Safeway receipt (14 items extracted)
+- ✅ Basic schema: merchant, date, total, items
 
-**Started:** [Today's date]
+**Iteration 2 (v2.0):**
+- ✅ Enhanced prompt for better extraction
+- ✅ Added product name expansion
+- ✅ Added productCategory field
+- ✅ Added dietary/attributes tags
+- ✅ Increased token limit to 8000
 
----
+**Iteration 3 (v2.1):**
+- ✅ Store-specific discount linking rules:
+  - Costco (proximity + item number pattern)
+  - PCC (Savings groups)
+  - QFC (QFC SAVINGS lines)
+  - Target (Regular Price + deals)
+  - Safeway (Club Card)
+- ✅ Weight-based pricing support
+- ✅ Tax code capture
+- ✅ Confidence flagging
+- ✅ Multi-store format support
 
-### Phase 1.2: Structured Receipt Processing (NOT STARTED)
+**Iteration 4 (v2.2 - Current):**
+- ✅ Automatic image compression (ImageMagick)
+- ✅ Receipt metadata:
+  - `receiptId` - Auto-generated unique ID
+  - `uploadedAt` - Processing timestamp
+  - `tripMetrics` - Receipt-level analytics
+- ✅ Smart compression logic (only when > 4.5 MB)
+- ✅ Better error handling
 
-**Goal:** Process actual receipt images
-
-- [ ] Add sample receipt images
-- [ ] Create receipt processor function
-- [ ] Define TypeScript interfaces for receipt data
-- [ ] Test with 3-5 sample receipts
-- [ ] Handle errors gracefully
-
-**Status:** Waiting for Phase 1.1 completion
-
----
-
-### Phase 1.3: Improved Prompt Engineering (NOT STARTED)
-
-**Goal:** Better accuracy in extraction
-
-- [ ] Enhance system prompt
-- [ ] Add quantity detection ("2@", "3X")
-- [ ] Improve category assignment
-- [ ] Extract brand names
-- [ ] Test with 10 receipts
-
-**Status:** Waiting for Phase 1.2 completion
-
----
-
-## Phase 2: Database Layer (NOT STARTED)
-
-- [ ] Set up Drizzle ORM
-- [ ] Create database schema
-- [ ] Connect to Neon
-- [ ] Implement save/retrieve functions
+**Test Results:**
+- ✅ Safeway: 14 items extracted successfully
+- ✅ PCC: Discount groups detected
+- ⏳ Target: Pending test
+- ⏳ QFC: Pending test  
+- ⏳ Costco: Pending test (large file now handled via compression)
 
 ---
 
-## Phase 3: Web Interface (NOT STARTED)
+## Phase 1.3: Batch Processing & Refinement 🚧 IN PROGRESS
 
-- [ ] Create Express API server
-- [ ] Build React frontend
-- [ ] Implement file upload
-- [ ] Display receipt list
+**Goal:** Process multiple receipts and refine extraction quality
 
----
+**Tasks:**
+- [ ] Create `src/process-all-receipts.ts` batch processor
+- [ ] Process all 15 sample receipts
+- [ ] Review extraction quality per store
+- [ ] Document issues and patterns
+- [ ] Update prompt based on findings
+- [ ] Re-test with improved prompt
+- [ ] Establish baseline accuracy metrics
 
-## Phase 4: Features & Polish (NOT STARTED)
-
-- [ ] Add edit capability
-- [ ] Add price tracking
-- [ ] Create charts
-- [ ] Polish UI
-
----
-
-## Phase 5: Deployment (NOT STARTED)
-
-- [ ] Deploy backend
-- [ ] Deploy frontend
-- [ ] Test production environment
+**Sample Receipts Available:**
+- 2 Safeway receipts
+- 2 PCC receipts
+- 7 QFC receipts
+- 2 Costco receipts
+- 2 Target receipts
 
 ---
 
-## Notes & Learnings
+## Phase 2: Data Storage & Aggregation ⏸️ NOT STARTED
 
-### [Today's Date]
-- Started Phase 1.1
-- Learned about git remotes and GitHub authentication
-- Understanding .gitignore and why .env files shouldn't be committed
+**Goal:** Persist receipt data and build analytics
+
+**Planned:**
+- [ ] Design database schema
+- [ ] Set up Neon PostgreSQL connection
+- [ ] Create tables (receipts, items, products, price_history)
+- [ ] Build data ingestion pipeline
+- [ ] Implement aggregation queries
+- [ ] Calculate purchase frequency
+- [ ] Track price history
+- [ ] Build product equivalence matching
 
 ---
 
-## Questions / Blockers
+## Phase 2.5: Review UI ⏸️ NOT STARTED
 
-*(Add any questions or issues here as they come up)*
+**Goal:** Human-in-the-loop correction interface
+
+**Planned:**
+- [ ] Editable table interface
+- [ ] Highlight low-confidence fields
+- [ ] Inline editing
+- [ ] "Mark as non-product" option
+- [ ] Confirm/save flow
+- [ ] Track user corrections
+- [ ] Use corrections to improve prompts
 
 ---
 
-## Time Tracking
+## Phase 3: Web Interface ⏸️ NOT STARTED
 
-**Total Hours Invested:** ~4 hours (Phase 0)
-**Current Session:** [Track when you work on it]
+**Goal:** Build React app for receipt upload and viewing
+
+**Planned:**
+- [ ] Initialize Vite + React + TypeScript
+- [ ] Camera integration for mobile
+- [ ] Receipt upload flow
+- [ ] Display extracted data
+- [ ] Integrate review UI
+- [ ] Search and filter receipts
+- [ ] Price comparison views
+- [ ] Analytics dashboard
+
+---
+
+## Phase 4: PWA Features ⏸️ NOT STARTED
+
+**Goal:** Make it work offline and installable
+
+**Planned:**
+- [ ] Service worker setup
+- [ ] Offline mode with IndexedDB
+- [ ] Install prompt
+- [ ] Background sync
+- [ ] Push notifications (optional)
+
+---
+
+## Phase 5: Deployment ⏸️ NOT STARTED
+
+**Goal:** Deploy and make shareable
+
+**Planned:**
+- [ ] GitHub Pages or Vercel hosting
+- [ ] Documentation for self-hosting
+- [ ] API key setup instructions
+- [ ] Optional PostgreSQL setup guide
+
+---
+
+## Key Decisions Made
+
+1. **Architecture:** PWA with user-provided API keys (privacy-first)
+2. **Storage:** IndexedDB (local) with optional PostgreSQL
+3. **AI Model:** Claude Sonnet 4 for receipt processing
+4. **Pricing Model:** `paid = price - discount` (universal formula)
+5. **Product Matching:** `productKey` for specific, `productCategory` for cross-brand
+6. **Discount Linking:** Store-specific rules (proximity-based)
+7. **Image Handling:** Auto-compress when > 4.5 MB
+8. **Version Control:** Git with descriptive commits, no version suffixes
+
+---
+
+## Metrics
+
+**Token Usage (to date):** ~140K tokens  
+**Receipts Processed:** 2 (Safeway, PCC)  
+**Receipts Pending:** 13  
+**Code Iterations:** 4 major versions  
+**Time Invested:** ~6 hours  
+
+---
+
+## Next Session Goals
+
+1. Test v2.2 on Costco receipt (with auto-compression)
+2. Process remaining 13 receipts
+3. Document extraction quality per store
+4. Begin Phase 1.3 prompt refinement
+
+---
+
+**Status:** Ahead of schedule, high quality foundation established
