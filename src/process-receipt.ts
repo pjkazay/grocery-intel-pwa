@@ -148,6 +148,28 @@ FOR QFC (Quality Food Centers):
 - Items marked with "QA" have QFC Advantage Card discounts applied
 - The number after "QA" is the FINAL PAID AMOUNT (after discount)
 - CRITICAL: Look for "WT" marker to determine if item is weight-based or fixed-price
+- CRITICAL: Detect BOGO (Buy-One-Get-One) deals - TWO formats exist!
+
+BOGO DETECTION - FORMAT A (Header Pattern):
+  KRO 93% GRND BEEF QA    0.00 F  ← BOGO deal header (DO NOT extract as item!)
+  QFC SAVINGS            10.49    ← Total discount
+  KRO 93% GRND BEEF QA   10.49 F  ← Item 1 (paid)
+  KRO 93% GRND BEEF QA   10.49 F  ← Item 2 (paid)
+  
+  RULE: If "ITEM QA 0.00 F" is followed by "QFC SAVINGS [amount]" and then 2+ identical items:
+  → The "0.00" line is a DEAL HEADER, not a purchase - SKIP IT
+  → Extract the actual items below (2 items in this case)
+  → Split the discount: each item gets price=10.49, discount=5.245, paid=5.245
+
+BOGO DETECTION - FORMAT B (Direct Free Item):
+  DRPV CH BRST        QA   10.71 F  ← Item 1 (paid)
+  DRPV CH BRST        QA    0.00 F  ← Item 2 (FREE)
+  DRPV SAVINGS              9.51    ← Discount on item 2
+  
+  RULE: If "ITEM QA 0.00 F" appears AFTER a similar item (not before):
+  → This IS a real purchased item (the free one)
+  → Extract: price=inferred from previous item, discount=full price, paid=0
+  → Mark as BOGO deal
 
 WEIGHT-BASED ITEMS (have "WT" marker):
 - Example:
