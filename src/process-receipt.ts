@@ -120,7 +120,7 @@ CRITICAL INSTRUCTIONS:
 2. CAPTURE STORE PRODUCT IDs/SKU NUMBERS (usually 6-10 digit numbers before product names)
 3. DETECT AND LINK DISCOUNTS TO ITEMS (see store-specific rules below)
 4. EXPAND ABBREVIATED PRODUCT NAMES to full interpretable names
-5. HANDLE WEIGHT-BASED PRICING (items sold by lb, oz, kg, etc.)
+5. HANDLE WEIGHT-BASED PRICING (items sold by lb, oz, kg, etc.) - SEE CRITICAL RULE BELOW
 6. CAPTURE TAX/ELIGIBILITY CODES (letters like E, F, T, A, NF)
 7. DO NOT INCLUDE: bag fees, paper bag charges, non-grocery items (toys, apparel, electronics, greeting cards, flowers)
 
@@ -145,11 +145,38 @@ FOR PCC (PCC Burien):
   → Beecher Cheese: price=12.99, discount=5.00, paid=7.99
 
 FOR QFC (Quality Food Centers):
-- "QFC SAVINGS" lines appear below items
+- Items marked with "QA" have QFC Advantage Card discounts applied
+- The number after "QA" is the FINAL PAID AMOUNT (after discount)
+- CRITICAL: Look for "WT" marker to determine if item is weight-based or fixed-price
+
+WEIGHT-BASED ITEMS (have "WT" marker):
 - Example:
-  CAFE BUSTELO           NF  $13.99
-    QFC SAVINGS              2.50
-  → Cafe Bustelo: price=13.99, discount=2.50, paid=11.49
+  WT    POTATOES SWT WHT     9.30 F
+  2.74 lb @ 1.99 /lb
+  → isPricedByWeight=true, quantity=2.74, unit="lb", unitPrice=1.99, price=5.45 (2.74×1.99)
+  → If followed by "QA 1.98": paid=1.98, discount=3.47 (5.45-1.98)
+
+FIXED-PRICE ITEMS (NO "WT" marker):
+- Example with clean pricing:
+  SC    1 @ 3/5.00
+        PEPPERS BELL RED      1.67 F
+  → isPricedByWeight=false, quantity=1, price=1.67, paid=1.67, discount=0
+
+- Example with small discrepancy (FLAG FOR REVIEW):
+  2 @ 2/4.00
+       FC YAS BELL RED  QA  1.98 F
+  SC   QFC SAVINGS         0.02
+  → Expected: 2 for $4.00 = $2.00 each
+  → QA shows: $1.98 (difference = $0.02)
+  → RULE: If price - QA amount < $0.10, treat as rounding/noise
+  → Output: price=2.00, paid=2.00, discount=0, needsReview=true
+  → reviewReason="Small price discrepancy - QA shows 1.98 vs expected 2.00"
+
+- Example with meaningful discount:
+  LACROIX SPRKL 8PK QA    3.99 B
+       QFC SAVINGS        1.50
+  → Meaningful discount (≥$0.10), calculate normally
+  → price=5.49, paid=3.99, discount=1.50
 
 FOR TARGET:
 - "Regular Price" shown separately, then deal info
@@ -166,21 +193,39 @@ FOR SAFEWAY:
 UNIVERSAL RULE: ALWAYS calculate paid = price - discount
 
 ═══════════════════════════════════════════════════════════════
-WEIGHT-BASED PRICING:
+WEIGHT-BASED PRICING (CRITICAL RULE):
 ═══════════════════════════════════════════════════════════════
 
-When items are sold by weight/volume (lb, oz, kg, etc.):
-- Extract: quantity (e.g., 2.43), unit (e.g., "lb"), unitPrice (e.g., 1.99)
-- Calculate: price = quantity × unitPrice
+ONLY mark isPricedByWeight=true if the item has a "WT" marker!
+
+FOR QFC RECEIPTS:
+- "WT" marker appears BEFORE items sold by weight
+- Example of WEIGHT-BASED (has WT):
+  WT    BROCCOLI CROWNS       3.98 F
+  1.60 lb @ 2.49 /lb
+  → Extract: quantity=1.60, unit="lb", unitPrice=2.49
+  → Calculate: price = 1.60 × 2.49 = 3.98
+  → isPricedByWeight=true
+
+- Example of FIXED-PRICE (NO WT):
+  SC    1 @ 3/5.00
+        PEPPERS BELL RED      1.67 F
+  → This is a multi-buy deal (3 for $5.00)
+  → quantity=1, unit="each", price=1.67
+  → isPricedByWeight=false
+  → Even if weight info appears nearby, IGNORE IT for pricing
+
+FOR OTHER STORES:
+- Look for explicit weight × unit price calculation on the receipt
 - Example:
-  POTATO SWEET RED
-  2.43 lb @ 1.99 /lb    4.84 F
-  → quantity=2.43, unit="lb", unitPrice=1.99, price=4.84
+  2.43 lb @ 1.99 /lb    POTATO SWEET RED    4.84 F
+  → If 2.43 × 1.99 ≈ 4.84, then isPricedByWeight=true
 
 For fixed-quantity items:
 - quantity = whole number (1, 2, etc.)
 - unit = "each" or null
 - unitPrice = null
+- isPricedByWeight = false
 
 ═══════════════════════════════════════════════════════════════
 PRODUCT NAME EXPANSION:
@@ -265,11 +310,14 @@ CRITICAL REMINDERS:
 
 1. LINK DISCOUNTS CORRECTLY using store-specific rules
 2. ALWAYS calculate: paid = price - discount
-3. EXTRACT WEIGHT-BASED PRICING with quantity/unit/unitPrice
-4. EXPAND PRODUCT NAMES fully and intelligently
-5. FLAG LOW CONFIDENCE items for human review
-6. CAPTURE STORE PRODUCT IDs when visible
-7. DO NOT include non-grocery items (toys, apparel, flowers, cards)
+3. FOR QFC: Only set isPricedByWeight=true if item has "WT" marker
+4. FOR QFC: If calculated discount < $0.10, treat as rounding/noise:
+   - Set discount=0, paid=price (use clean deal price)
+   - Flag needsReview=true with reason explaining small discrepancy
+5. EXPAND PRODUCT NAMES fully and intelligently
+6. FLAG LOW CONFIDENCE items for human review
+7. CAPTURE STORE PRODUCT IDs when visible
+8. DO NOT include non-grocery items (toys, apparel, flowers, cards)
 
 Return ONLY valid JSON, no other text.`
           },

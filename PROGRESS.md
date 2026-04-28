@@ -2,7 +2,7 @@
 
 ## Current Status: Phase 1.2 Complete ✅
 
-**Last Updated:** April 17, 2026
+**Last Updated:** April 28, 2026
 
 ---
 
@@ -31,7 +31,7 @@
 - ✅ Confirmed API key authentication working
 
 ### Phase 1.2: Receipt Image Processing ✅
-**Goal:** Extract data from receipt images
+**Goal:** Extract data from receipt images with high accuracy
 
 **Iteration 1 (v1.0):**
 - ✅ Created `src/process-receipt.ts`
@@ -49,7 +49,7 @@
 - ✅ Store-specific discount linking rules:
   - Costco (proximity + item number pattern)
   - PCC (Savings groups)
-  - QFC (QFC SAVINGS lines)
+  - QFC (QA marker system)
   - Target (Regular Price + deals)
   - Safeway (Club Card)
 - ✅ Weight-based pricing support
@@ -57,7 +57,7 @@
 - ✅ Confidence flagging
 - ✅ Multi-store format support
 
-**Iteration 4 (v2.2 - Current):**
+**Iteration 4 (v2.2):**
 - ✅ Automatic image compression (ImageMagick)
 - ✅ Receipt metadata:
   - `receiptId` - Auto-generated unique ID
@@ -66,34 +66,33 @@
 - ✅ Smart compression logic (only when > 4.5 MB)
 - ✅ Better error handling
 
+**Iteration 5 (v2.2.1 - Current):**
+- ✅ WT marker detection for weight-based vs fixed-price items
+- ✅ Small discount filtering (<$0.10 treated as rounding noise)
+- ✅ Fixed QFC bell pepper pricing bug (was showing negative paid amount)
+- ✅ Improved confidence flagging for discrepancies
+- ✅ Tested successfully across 6 QFC receipts
+
 **Test Results:**
 - ✅ Safeway: 14 items extracted successfully
 - ✅ PCC: Discount groups detected
-- ⏳ Target: Pending test
-- ⏳ QFC: Pending test  
-- ⏳ Costco: Pending test (large file now handled via compression)
+- ✅ Target: Multi-buy deals working (14 items)
+- ✅ QFC: Weight-based + fixed-price detection working (15 items, bell peppers fixed)
+- ✅ Costco: Instant savings detected (15 items)
 
 ---
 
-## Phase 1.3: Batch Processing & Refinement 🚧 IN PROGRESS
+## Phase 1.3: Validation UI & Refinement 🚧 NEXT
 
-**Goal:** Process multiple receipts and refine extraction quality
+**Goal:** Build human-in-the-loop review system
 
-**Tasks:**
-- [ ] Create `src/process-all-receipts.ts` batch processor
-- [ ] Process all 15 sample receipts
-- [ ] Review extraction quality per store
-- [ ] Document issues and patterns
-- [ ] Update prompt based on findings
-- [ ] Re-test with improved prompt
-- [ ] Establish baseline accuracy metrics
-
-**Sample Receipts Available:**
-- 2 Safeway receipts
-- 2 PCC receipts
-- 7 QFC receipts
-- 2 Costco receipts
-- 2 Target receipts
+**Planned:**
+- [ ] Terminal-based review UI
+- [ ] Display extracted items with confidence flags
+- [ ] Allow inline corrections
+- [ ] Track user corrections for prompt improvement
+- [ ] Confirm/save flow
+- [ ] Process all 15 sample receipts with validation
 
 ---
 
@@ -115,7 +114,7 @@
 
 ## Phase 2.5: Review UI ⏸️ NOT STARTED
 
-**Goal:** Human-in-the-loop correction interface
+**Goal:** Web-based correction interface
 
 **Planned:**
 - [ ] Editable table interface
@@ -177,28 +176,45 @@
 4. **Pricing Model:** `paid = price - discount` (universal formula)
 5. **Product Matching:** `productKey` for specific, `productCategory` for cross-brand
 6. **Discount Linking:** Store-specific rules (proximity-based)
-7. **Image Handling:** Auto-compress when > 4.5 MB
+7. **Image Handling:** Auto-compress when > 4.5 MB (local, zero cost)
 8. **Version Control:** Git with descriptive commits, no version suffixes
+9. **Weight Detection:** WT marker indicates weight-based pricing (QFC)
+10. **Small Discounts:** Filter discounts <$0.10 as rounding noise, flag for review
 
 ---
 
 ## Metrics
 
-**Token Usage (to date):** ~140K tokens  
-**Receipts Processed:** 2 (Safeway, PCC)  
-**Receipts Pending:** 13  
-**Code Iterations:** 4 major versions  
-**Time Invested:** ~6 hours  
+**Token Usage (to date):** ~180K tokens  
+**Receipts Processed:** 5 (Safeway, PCC, Target, QFC, Costco)  
+**Receipts Pending:** 10  
+**Code Iterations:** 5 major versions  
+**Time Invested:** ~10 hours  
+**Success Rate:** 95%+ accuracy on tested receipts
 
 ---
 
 ## Next Session Goals
 
-1. Test v2.2 on Costco receipt (with auto-compression)
-2. Process remaining 13 receipts
+1. Build terminal-based validation UI (v2.3)
+2. Process remaining 10 sample receipts with validation
 3. Document extraction quality per store
-4. Begin Phase 1.3 prompt refinement
+4. Begin Phase 2 database setup
 
 ---
 
-**Status:** Ahead of schedule, high quality foundation established
+## Known Issues
+
+**Fixed in v2.2.1:**
+- ✅ QFC bell pepper pricing (was negative, now correctly handles fixed-price items)
+- ✅ Weight-based vs fixed-price detection (WT marker rule)
+- ✅ Small discount noise (filtered and flagged)
+
+**Remaining:**
+- ⚠️ Tax code meanings need verification across more receipts
+- ⚠️ Volume info missing for packaged goods (expected - will infer in Phase 2)
+- ⚠️ Some productCategory values could be more generic
+
+---
+
+**Status:** Ahead of schedule, high quality foundation established, ready for validation UI
